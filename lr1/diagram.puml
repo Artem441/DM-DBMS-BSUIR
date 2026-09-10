@@ -1,0 +1,165 @@
+@startuml LMSDatabase
+
+hide circle
+skinparam linetype ortho
+skinparam roundcorner 5
+skinparam nodesep 60
+skinparam ranksep 70
+skinparam class {
+    BackgroundColor White
+    ArrowColor #2C3E50
+    BorderColor #2C3E50
+    HeaderBackgroundColor #ECF0F1
+}
+
+' --- СУЩНОСТИ ---
+
+entity "AuditLog" as AuditLog {
+  * Id : UUID <<PK>>
+  --
+  AccountId : UUID <<FK>>
+  * Action : VARCHAR(100)
+  EntityName : VARCHAR(50)
+  EntityId : UUID
+  * Timestamp : TIMESTAMP
+}
+
+entity "Role" as Role {
+  * Id : INT <<PK>>
+  --
+  * Name : VARCHAR(50) <<UQ>>
+}
+
+entity "Account" as Account {
+  * Id : UUID <<PK>>
+  --
+  * Email : VARCHAR(256) <<UQ>>
+  * PasswordHash : VARCHAR(256)
+  * RoleId : INT <<FK>>
+  * IsActive : BOOL
+  * CreatedAt : TIMESTAMP
+}
+
+entity "UserProfile" as UserProfile {
+  * AccountId : UUID <<PK>> <<FK>>
+  --
+  * FirstName : VARCHAR(50)
+  * LastName : VARCHAR(50)
+  PhoneNumber : VARCHAR(20) <<UQ>>
+  AvatarUrl : VARCHAR(500)
+}
+
+entity "Payment" as Payment {
+  * Id : UUID <<PK>>
+  --
+  * AccountId : UUID <<FK>>
+  * CourseId : UUID <<FK>>
+  * Amount : NUMERIC(10, 2)
+  * PaymentDate : TIMESTAMP
+}
+
+entity "Course" as Course {
+  * Id : UUID <<PK>>
+  --
+  * AuthorId : UUID <<FK>>
+  * Title : VARCHAR(150)
+  Description : TEXT
+  * Price : NUMERIC(10, 2)
+  * Status : course_status
+}
+
+entity "Enrollment" as Enrollment {
+  * Id : UUID <<PK>>
+  --
+  * StudentId : UUID <<FK>>
+  * CourseId : UUID <<FK>>
+  * Status : enrollment_status
+  * EnrolledAt : TIMESTAMP
+}
+note bottom of Enrollment
+  Уникальный индекс (StudentId, CourseId)
+  WHERE Status = 'Active'
+end note
+
+entity "Certificate" as Certificate {
+  * Id : UUID <<PK>>
+  --
+  * EnrollmentId : UUID <<FK>> <<UQ>>
+  * IssuedAt : TIMESTAMP
+  * CertificateUrl : VARCHAR(500)
+}
+
+entity "Module" as Module {
+  * Id : UUID <<PK>>
+  --
+  * CourseId : UUID <<FK>>
+  * Title : VARCHAR(150)
+  * OrderNum : INT
+}
+
+entity "Lesson" as Lesson {
+  * Id : UUID <<PK>>
+  --
+  * ModuleId : UUID <<FK>>
+  * Title : VARCHAR(150)
+  Content : TEXT
+  * OrderNum : INT
+}
+
+entity "Assignment" as Assignment {
+  * Id : UUID <<PK>>
+  --
+  * LessonId : UUID <<FK>>
+  * Description : TEXT
+  * MaxScore : INT
+}
+
+entity "Submission" as Submission {
+  * Id : UUID <<PK>>
+  --
+  * AssignmentId : UUID <<FK>>
+  * StudentId : UUID <<FK>>
+  * AnswerText : TEXT
+  * SubmittedAt : TIMESTAMP
+}
+
+entity "Grade" as Grade {
+  * SubmissionId : UUID <<PK>> <<FK>>
+  --
+  * TeacherId : UUID <<FK>>
+  * Score : INT
+  Feedback : TEXT
+  * GradedAt : TIMESTAMP
+}
+
+' --- НАСТРОЙКА РАСПОЛОЖЕНИЯ СВЯЗЕЙ (LAYOUT) ---
+' Использование направленных стрелок (-down-, -right-, -left-, -up-) 
+' выстраивает таблицы в ровную сетку, устраняя хаос и перекрещивающиеся линии.
+
+' Блок 1: Системные данные и профиль (Верхний уровень)
+AuditLog }o-down-o| Account : "1:M"
+Role ||-right-o{ Account : "1:M"
+Account ||-right-|| UserProfile : "1:1"
+
+' Блок 2: Главные узлы (Курс по центру, платежи слева, зачисления справа)
+Account ||-down-o{ Course : "1:M (Author)"
+Payment }o-up-|| Account : "1:M"
+Payment }o-right-|| Course : "1:M"
+Enrollment }o-up-|| Account : "1:M (Student)"
+Course ||-right-o{ Enrollment : "1:M"
+
+' Блок 3: Второстепенные документы от зачисления
+Enrollment ||-down-|| Certificate : "1:1"
+
+' Блок 4: Иерархия контента (Строго вниз)
+Course ||-down-o{ Module : "1:M"
+Module ||-down-o{ Lesson : "1:M"
+Lesson ||-down-o{ Assignment : "1:M"
+
+' Блок 5: Практика (Задания уходят вправо к решениям и оценкам)
+Assignment ||-right-o{ Submission : "1:M"
+Submission }o-up-|| Account : "1:M (Student)"
+Submission ||-right-|| Grade : "1:1"
+Grade }o-up-|| Account : "1:M (Teacher)"
+
+@enduml
