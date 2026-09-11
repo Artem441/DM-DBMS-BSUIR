@@ -30,150 +30,151 @@
 
 В спроектированной системе управления школой выделено 13 ключевых сущностей, что полностью покрывает функциональные требования.
 
-## Сущность "Роль" (Role)
+## Сущность "Роль" (role)
 Справочник системных ролей для управления доступом.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | INT | Primary Key | Идентификатор роли |
-| Name | VARCHAR(50) | Unique, Not Null | Название роли (например, Admin, Teacher, Student) |
+| id | INT | Primary Key | Идентификатор роли |
+| name | VARCHAR(50) | Unique, Not Null | Название роли (например, Admin, Teacher, Student) |
 
-## Сущность "Аккаунт" (Account)
+## Сущность "Аккаунт" (account)
 Базовые данные для входа в систему и идентификации.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор аккаунта |
-| Email | VARCHAR(256) | Unique, Not Null | Электронная почта для входа и уведомлений |
-| PasswordHash | VARCHAR(256) | Not Null | Хэш пароля пользователя |
-| RoleId | INT | Foreign Key, Not Null | Системная роль (таблица Role) |
-| IsActive | BOOL | Default True | Флаг активности аккаунта (блокировка) |
-| CreatedAt | TIMESTAMP | Default Current | Дата и время регистрации |
+| id | UUID | Primary Key | Идентификатор аккаунта |
+| email | VARCHAR(256) | Unique, Not Null | Электронная почта для входа и уведомлений |
+| password_hash | VARCHAR(256) | Not Null | Хэш пароля пользователя |
+| role_id | INT | Foreign Key, Not Null | Системная роль (таблица role) |
+| is_active | BOOL | Default True | Флаг активности аккаунта (блокировка) |
+| created_at | TIMESTAMP | Default Current | Дата и время регистрации |
 
-## Сущность "Профиль пользователя" (UserProfile)
+## Сущность "Профиль пользователя" (user_profile)
 Расширенная персональная информация пользователя.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| AccountId | UUID | Primary Key, Foreign Key (ON DELETE CASCADE) | Ссылка на аккаунт (связь 1:1) |
-| FirstName | VARCHAR(50) | Not Null | Имя пользователя |
-| LastName | VARCHAR(50) | Not Null | Фамилия пользователя |
-| PhoneNumber | VARCHAR(20) | Unique, Null | Контактный номер телефона |
-| AvatarUrl | VARCHAR(500) | Null | Ссылка на фотографию профиля |
+| account_id | UUID | Primary Key, Foreign Key (ON DELETE CASCADE) | Ссылка на аккаунт (связь 1:1) |
+| first_name | VARCHAR(50) | Not Null | Имя пользователя |
+| last_name | VARCHAR(50) | Not Null | Фамилия пользователя |
+| phone_number | VARCHAR(20) | Unique, Null | Контактный номер телефона |
+| avatar_url | VARCHAR(500) | Null | Ссылка на фотографию профиля |
 
-## Сущность "Курс" (Course)
+## Сущность "Курс" (course)
 Основная образовательная программа.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор курса |
-| AuthorId | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Ссылка на аккаунт создателя (Teacher) |
-| Title | VARCHAR(150) | Not Null | Название курса |
-| Description | TEXT | Null | Подробное описание программы |
-| Price | NUMERIC(10, 2) | Default 0.00 | Стоимость прохождения |
-| Status | course_status (ENUM) | Not Null, Default 'Draft' | Статус курса: Draft, Published, Archived |
+| id | UUID | Primary Key | Идентификатор курса |
+| author_id | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Ссылка на аккаунт создателя (Teacher) |
+| title | VARCHAR(150) | Not Null | Название курса |
+| description | TEXT | Null | Подробное описание программы |
+| price | NUMERIC(10, 2) | Default 0.00 | Стоимость прохождения |
+| status | VARCHAR(20) | Not Null, Default 'Draft' | Статус курса: Draft, Published, Archived |
 
-## Сущность "Модуль" (Module)
+## Сущность "Модуль" (module)
 Логический блок или раздел внутри курса.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор модуля |
-| CourseId | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на курс |
-| Title | VARCHAR(150) | Not Null | Название модуля |
-| OrderNum | INT | Not Null | Порядковый номер модуля в курсе |
+| id | UUID | Primary Key | Идентификатор модуля |
+| course_id | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на курс |
+| title | VARCHAR(150) | Not Null | Название модуля |
+| order_num | INT | Not Null | Порядковый номер модуля в курсе |
 
-## Сущность "Урок" (Lesson)
+## Сущность "Урок" (lesson)
 Конкретное занятие внутри модуля.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор урока |
-| ModuleId | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на модуль |
-| Title | VARCHAR(150) | Not Null | Название урока |
-| Content | TEXT | Null | Текстовый или HTML контент урока |
-| OrderNum | INT | Not Null | Порядковый номер урока в модуле |
+| id | UUID | Primary Key | Идентификатор урока |
+| module_id | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на модуль |
+| title | VARCHAR(150) | Not Null | Название урока |
+| content | TEXT | Null | Текстовый или HTML контент урока |
+| order_num | INT | Not Null | Порядковый номер урока в модуле |
 
-## Сущность "Задание" (Assignment)
+## Сущность "Задание" (assignment)
 Практическая задача для закрепления материала урока.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор задания |
-| LessonId | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на урок |
-| Description | TEXT | Not Null | Текст задания или инструкции |
-| MaxScore | INT | Not Null, Check (> 0) | Максимальный балл за выполнение |
+| id | UUID | Primary Key | Идентификатор задания |
+| lesson_id | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на урок |
+| description | TEXT | Not Null | Текст задания или инструкции |
+| max_score | INT | Not Null, Check (> 0) | Максимальный балл за выполнение |
 
-## Сущность "Зачисление" (Enrollment)
+## Сущность "Зачисление" (enrollment)
 Запись студента на курс (связь M:M).
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор зачисления |
-| StudentId | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на аккаунт студента |
-| CourseId | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на курс |
-| Status | ENUM | Not Null, Default 'Active' | Статус обучения: Active, Completed, Dropped |
-| EnrolledAt | TIMESTAMP | Default Current | Дата и время зачисления |
+| id | UUID | Primary Key | Идентификатор зачисления |
+| student_id | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на аккаунт студента |
+| course_id | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на курс |
+| status | VARCHAR(20) | Not Null, Default 'Active' | Статус обучения: Active, Completed, Dropped |
+| enrolled_at | TIMESTAMP | Default Current | Дата и время зачисления |
 
-*Уникальный индекс (StudentId, CourseId) WHERE Status = 'Active' — студент не может иметь более одного активного зачисления на курс. Повторное зачисление после Completed или Dropped допускается.*
+*Уникальный индекс (student_id, course_id) WHERE status = 'Active' — студент не может иметь более одного активного зачисления на курс. Повторное зачисление после Completed или Dropped допускается.*
 
-## Сущность "Отправленное решение" (Submission)
+## Сущность "Отправленное решение" (submission)
 Ответ студента на практическое задание.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор ответа |
-| AssignmentId | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Ссылка на задание |
-| StudentId | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на аккаунт студента |
-| AnswerText | TEXT | Not Null | Текст ответа или ссылка на материалы |
-| SubmittedAt | TIMESTAMP | Default Current | Время отправки решения |
+| id | UUID | Primary Key | Идентификатор ответа |
+| assignment_id | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Ссылка на задание |
+| student_id | UUID | Foreign Key, Not Null (ON DELETE CASCADE) | Ссылка на аккаунт студента |
+| answer_text | TEXT | Not Null | Текст ответа или ссылка на материалы |
+| submitted_at | TIMESTAMP | Default Current | Время отправки решения |
 
-## Сущность "Оценка" (Grade)
+## Сущность "Оценка" (grade)
 Результат проверки решения студента преподавателем.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| SubmissionId | UUID | Primary Key, Foreign Key (ON DELETE CASCADE) | Ссылка на отправленное решение (1:1) |
-| TeacherId | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Ссылка на аккаунт проверяющего |
-| Score | INT | Not Null | Выставленный балл (Check <= MaxScore задания) |
-| Feedback | TEXT | Null | Текстовый комментарий преподавателя |
-| GradedAt | TIMESTAMP | Default Current | Время проверки |
+| submission_id | UUID | Primary Key, Foreign Key (ON DELETE CASCADE) | Ссылка на отправленное решение (1:1) |
+| teacher_id | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Ссылка на аккаунт проверяющего |
+| score | INT | Not Null | Выставленный балл (Check <= max_score задания) |
+| feedback | TEXT | Null | Текстовый комментарий преподавателя |
+| graded_at | TIMESTAMP | Default Current | Время проверки |
 
-## Сущность "Платеж" (Payment)
+## Сущность "Платеж" (payment)
 Финансовая транзакция за покупку курса.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор транзакции |
-| AccountId | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Кто оплачивал |
-| CourseId | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | За какой курс |
-| Amount | NUMERIC(10, 2) | Not Null, Check (> 0) | Сумма транзакции |
-| PaymentDate | TIMESTAMP | Default Current | Время успешной оплаты |
+| id | UUID | Primary Key | Идентификатор транзакции |
+| account_id | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | Кто оплачивал |
+| course_id | UUID | Foreign Key, Not Null (ON DELETE RESTRICT) | За какой курс |
+| amount | NUMERIC(10, 2) | Not Null, Check (> 0) | Сумма транзакции |
+| payment_date | TIMESTAMP | Default Current | Время успешной оплаты |
 
-## Сущность "Сертификат" (Certificate)
+## Сущность "Сертификат" (certificate)
 Документ, подтверждающий успешное окончание курса.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор сертификата |
-| EnrollmentId | UUID | Foreign Key, Unique, Not Null (ON DELETE CASCADE) | Ссылка на запись о зачислении (1:1) |
-| IssuedAt | TIMESTAMP | Default Current | Дата и время выдачи |
-| CertificateUrl | VARCHAR(500) | Not Null | Ссылка на PDF-файл сертификата |
+| id | UUID | Primary Key | Идентификатор сертификата |
+| enrollment_id | UUID | Foreign Key, Unique, Not Null (ON DELETE CASCADE) | Ссылка на запись о зачислении (1:1) |
+| issued_at | TIMESTAMP | Default Current | Дата и время выдачи |
+| certificate_url | VARCHAR(500) | Not Null | Ссылка на PDF-файл сертификата |
 
-## Сущность "Журнал действий" (AuditLog)
+## Сущность "Журнал действий" (audit_log)
 Логирование критических системных и пользовательских событий.
 
 | Поле | Тип | Ограничения | Описание |
 | --- | --- | --- | --- |
-| Id | UUID | Primary Key | Идентификатор записи лога |
-| AccountId | UUID | Foreign Key, Null | Пользователь, совершивший действие (Null для системы) |
-| Action | VARCHAR(100) | Not Null | Тип операции (например, ENROLL_COURSE, ADD_GRADE) |
-| EntityName | VARCHAR(50) | Null | Затронутая таблица/сущность |
-| EntityId | UUID | Null | Идентификатор измененной записи |
-| Timestamp | TIMESTAMP | Default Current | Точное время фиксации события |
+| id | UUID | Primary Key | Идентификатор записи лога |
+| account_id | UUID | Foreign Key, Null | Пользователь, совершивший действие (Null для системы) |
+| action | VARCHAR(100) | Not Null | Тип операции (например, ENROLL_COURSE, ADD_GRADE) |
+| entity_name | VARCHAR(50) | Null | Затронутая таблица/сущность |
+| entity_id | UUID | Null | Идентификатор измененной записи |
+| timestamp | TIMESTAMP | Default Current | Точное время фиксации события |
 
 # Описание связей БД
 В спроектированной схеме базы данных присутствуют все виды реляционных связей:
-* **Один-к-Одному (1:1):** `Account` ↔ `UserProfile`, `Submission` ↔ `Grade`, `Enrollment` ↔ `Certificate`. Данные связи вынесены для избежания перегрузки таблиц, содержащих критические или часто запрашиваемые данные (например, отделено тело авторизации от профиля, и отдельно хранятся оценки от самих решений).
-* **Один-ко-Многим (1:M):** `Role` ↔ `Account`, `Course` ↔ `Module`, `Module` ↔ `Lesson`, `Lesson` ↔ `Assignment`, `Account` ↔ `Course` (авторство), `Account` ↔ `Submission`, `Account` ↔ `Payment`, `Course` ↔ `Payment`, `Account` ↔ `AuditLog`.
-* **Многие-ко-Многим (M:M):** Связь между `Account` (Студент) и `Course` реализована через промежуточную сущность `Enrollment`. Данная таблица является самостоятельной сущностью, так как несет в себе дополнительную смысловую нагрузку (Дата зачисления, Текущий статус), что удовлетворяет требованиям к проектированию.
+* **Один-к-Одному (1:1):** `account` ↔ `user_profile`, `submission` ↔ `grade`, `enrollment` ↔ `certificate`. Данные связи вынесены для избежания перегрузки таблиц, содержащих критические или часто запрашиваемые данные (например, отделено тело авторизации от профиля, и отдельно хранятся оценки от самих решений).
+* **Один-ко-Многим (1:M):** `role` ↔ `account`, `course` ↔ `module`, `module` ↔ `lesson`, `lesson` ↔ `assignment`, `account` ↔ `course` (авторство), `account` ↔ `submission`, `account` ↔ `payment`, `course` ↔ `payment`, `account` ↔ `audit_log`.
+* **Многие-ко-Многим (M:M):** Связь между `account` (Студент) и `course` реализована через промежуточную сущность `enrollment`. Данная таблица является самостоятельной сущностью, так как несет в себе дополнительную смысловую нагрузку (Дата зачисления, Текущий статус), что удовлетворяет требованиям к проектированию.
+

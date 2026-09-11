@@ -12,154 +12,150 @@ skinparam class {
     HeaderBackgroundColor #ECF0F1
 }
 
-' --- СУЩНОСТИ ---
-
-entity "AuditLog" as AuditLog {
-  * Id : UUID <<PK>>
+entity "audit_log" as audit_log {
+  * id : UUID <<PK>>
   --
-  AccountId : UUID <<FK>>
-  * Action : VARCHAR(100)
-  EntityName : VARCHAR(50)
-  EntityId : UUID
-  * Timestamp : TIMESTAMP
+  account_id : UUID <<FK>>
+  * action : VARCHAR(100)
+  entity_name : VARCHAR(50)
+  entity_id : UUID
+  * timestamp : TIMESTAMP
 }
 
-entity "Role" as Role {
-  * Id : INT <<PK>>
+entity "role" as role {
+  * id : INT <<PK>>
   --
-  * Name : VARCHAR(50) <<UQ>>
+  * name : VARCHAR(50) <<UQ>>
 }
 
-entity "Account" as Account {
-  * Id : UUID <<PK>>
+entity "account" as account {
+  * id : UUID <<PK>>
   --
-  * Email : VARCHAR(256) <<UQ>>
-  * PasswordHash : VARCHAR(256)
-  * RoleId : INT <<FK>>
-  * IsActive : BOOL
-  * CreatedAt : TIMESTAMP
+  * email : VARCHAR(256) <<UQ>>
+  * password_hash : VARCHAR(256)
+  * role_id : INT <<FK>>
+  * is_active : BOOL
+  * created_at : TIMESTAMP
 }
 
-entity "UserProfile" as UserProfile {
-  * AccountId : UUID <<PK>> <<FK>>
+entity "user_profile" as user_profile {
+  * account_id : UUID <<PK>> <<FK>>
   --
-  * FirstName : VARCHAR(50)
-  * LastName : VARCHAR(50)
-  PhoneNumber : VARCHAR(20) <<UQ>>
-  AvatarUrl : VARCHAR(500)
+  * first_name : VARCHAR(50)
+  * last_name : VARCHAR(50)
+  phone_number : VARCHAR(20) <<UQ>>
+  avatar_url : VARCHAR(500)
 }
 
-entity "Payment" as Payment {
-  * Id : UUID <<PK>>
+entity "payment" as payment {
+  * id : UUID <<PK>>
   --
-  * AccountId : UUID <<FK>>
-  * CourseId : UUID <<FK>>
-  * Amount : NUMERIC(10, 2)
-  * PaymentDate : TIMESTAMP
+  * account_id : UUID <<FK>>
+  * course_id : UUID <<FK>>
+  * amount : NUMERIC(10, 2)
+  * payment_date : TIMESTAMP
 }
 
-entity "Course" as Course {
-  * Id : UUID <<PK>>
+entity "course" as course {
+  * id : UUID <<PK>>
   --
-  * AuthorId : UUID <<FK>>
-  * Title : VARCHAR(150)
-  Description : TEXT
-  * Price : NUMERIC(10, 2)
-  * Status : course_status
+  * author_id : UUID <<FK>>
+  * title : VARCHAR(150)
+  description : TEXT
+  * price : NUMERIC(10, 2)
+  * status : VARCHAR(20)
 }
 
-entity "Enrollment" as Enrollment {
-  * Id : UUID <<PK>>
+entity "enrollment" as enrollment {
+  * id : UUID <<PK>>
   --
-  * StudentId : UUID <<FK>>
-  * CourseId : UUID <<FK>>
-  * Status : enrollment_status
-  * EnrolledAt : TIMESTAMP
+  * student_id : UUID <<FK>>
+  * course_id : UUID <<FK>>
+  * status : VARCHAR(20)
+  * enrolled_at : TIMESTAMP
 }
-note bottom of Enrollment
-  Уникальный индекс (StudentId, CourseId)
-  WHERE Status = 'Active'
+note bottom of enrollment
+  Уникальный индекс (student_id, course_id)
+  WHERE status = 'Active'
 end note
 
-entity "Certificate" as Certificate {
-  * Id : UUID <<PK>>
+entity "certificate" as certificate {
+  * id : UUID <<PK>>
   --
-  * EnrollmentId : UUID <<FK>> <<UQ>>
-  * IssuedAt : TIMESTAMP
-  * CertificateUrl : VARCHAR(500)
+  * enrollment_id : UUID <<FK>> <<UQ>>
+  * issued_at : TIMESTAMP
+  * certificate_url : VARCHAR(500)
 }
 
-entity "Module" as Module {
-  * Id : UUID <<PK>>
+entity "module" as module {
+  * id : UUID <<PK>>
   --
-  * CourseId : UUID <<FK>>
-  * Title : VARCHAR(150)
-  * OrderNum : INT
+  * course_id : UUID <<FK>>
+  * title : VARCHAR(150)
+  * order_num : INT
 }
 
-entity "Lesson" as Lesson {
-  * Id : UUID <<PK>>
+entity "lesson" as lesson {
+  * id : UUID <<PK>>
   --
-  * ModuleId : UUID <<FK>>
-  * Title : VARCHAR(150)
-  Content : TEXT
-  * OrderNum : INT
+  * module_id : UUID <<FK>>
+  * title : VARCHAR(150)
+  content : TEXT
+  * order_num : INT
 }
 
-entity "Assignment" as Assignment {
-  * Id : UUID <<PK>>
+entity "assignment" as assignment {
+  * id : UUID <<PK>>
   --
-  * LessonId : UUID <<FK>>
-  * Description : TEXT
-  * MaxScore : INT
+  * lesson_id : UUID <<FK>>
+  * description : TEXT
+  * max_score : INT
 }
 
-entity "Submission" as Submission {
-  * Id : UUID <<PK>>
+entity "submission" as submission {
+  * id : UUID <<PK>>
   --
-  * AssignmentId : UUID <<FK>>
-  * StudentId : UUID <<FK>>
-  * AnswerText : TEXT
-  * SubmittedAt : TIMESTAMP
+  * assignment_id : UUID <<FK>>
+  * student_id : UUID <<FK>>
+  * answer_text : TEXT
+  * submitted_at : TIMESTAMP
 }
 
-entity "Grade" as Grade {
-  * SubmissionId : UUID <<PK>> <<FK>>
+entity "grade" as grade {
+  * submission_id : UUID <<PK>> <<FK>>
   --
-  * TeacherId : UUID <<FK>>
-  * Score : INT
-  Feedback : TEXT
-  * GradedAt : TIMESTAMP
+  * teacher_id : UUID <<FK>>
+  * score : INT
+  feedback : TEXT
+  * graded_at : TIMESTAMP
 }
 
 ' --- НАСТРОЙКА РАСПОЛОЖЕНИЯ СВЯЗЕЙ (LAYOUT) ---
-' Использование направленных стрелок (-down-, -right-, -left-, -up-) 
-' выстраивает таблицы в ровную сетку, устраняя хаос и перекрещивающиеся линии.
 
 ' Блок 1: Системные данные и профиль (Верхний уровень)
-AuditLog }o-down-o| Account : "1:M"
-Role ||-right-o{ Account : "1:M"
-Account ||-right-|| UserProfile : "1:1"
+audit_log }o-down-o| account : "1:M"
+role ||-right-o{ account : "1:M"
+account ||-right-|| user_profile : "1:1"
 
 ' Блок 2: Главные узлы (Курс по центру, платежи слева, зачисления справа)
-Account ||-down-o{ Course : "1:M (Author)"
-Payment }o-up-|| Account : "1:M"
-Payment }o-right-|| Course : "1:M"
-Enrollment }o-up-|| Account : "1:M (Student)"
-Course ||-right-o{ Enrollment : "1:M"
+account ||-down-o{ course : "1:M (Author)"
+payment }o-up-|| account : "1:M"
+payment }o-right-|| course : "1:M"
+enrollment }o-up-|| account : "1:M (Student)"
+course ||-right-o{ enrollment : "1:M"
 
 ' Блок 3: Второстепенные документы от зачисления
-Enrollment ||-down-|| Certificate : "1:1"
+enrollment ||-down-|| certificate : "1:1"
 
 ' Блок 4: Иерархия контента (Строго вниз)
-Course ||-down-o{ Module : "1:M"
-Module ||-down-o{ Lesson : "1:M"
-Lesson ||-down-o{ Assignment : "1:M"
+course ||-down-o{ module : "1:M"
+module ||-down-o{ lesson : "1:M"
+lesson ||-down-o{ assignment : "1:M"
 
 ' Блок 5: Практика (Задания уходят вправо к решениям и оценкам)
-Assignment ||-right-o{ Submission : "1:M"
-Submission }o-up-|| Account : "1:M (Student)"
-Submission ||-right-|| Grade : "1:1"
-Grade }o-up-|| Account : "1:M (Teacher)"
+assignment ||-right-o{ submission : "1:M"
+submission }o-up-|| account : "1:M (Student)"
+submission ||-right-|| grade : "1:1"
+grade }o-up-|| account : "1:M (Teacher)"
 
 @enduml
